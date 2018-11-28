@@ -1,4 +1,4 @@
-package com.setia.myfootballmatch.fragment
+package com.setia.myfootballmatch.fragment.event
 
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -8,7 +8,7 @@ import android.widget.TextView
 import com.setia.myfootballmatch.R
 
 
-import com.setia.myfootballmatch.fragment.MatchListFragment.OnListFragmentInteractionListener
+import com.setia.myfootballmatch.fragment.event.MatchListFragment.OnListFragmentInteractionListener
 import com.setia.myfootballmatch.model.Event
 
 import kotlinx.android.synthetic.main.fragment_match_item.view.*

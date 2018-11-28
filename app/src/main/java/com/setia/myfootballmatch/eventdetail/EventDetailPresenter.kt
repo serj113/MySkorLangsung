@@ -1,11 +1,9 @@
-package com.setia.myfootballmatch.detail
+package com.setia.myfootballmatch.eventdetail
 
 import com.setia.myfootballmatch.helper.FootballClient
 import com.setia.myfootballmatch.model.Event
-import com.squareup.picasso.Picasso
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.activity_event_detail.*
 
 class EventDetailPresenter(private val view: EventDetailView) {
 

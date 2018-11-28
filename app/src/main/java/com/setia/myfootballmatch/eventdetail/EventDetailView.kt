@@ -1,4 +1,4 @@
-package com.setia.myfootballmatch.detail
+package com.setia.myfootballmatch.eventdetail
 
 import com.setia.myfootballmatch.model.Event
 

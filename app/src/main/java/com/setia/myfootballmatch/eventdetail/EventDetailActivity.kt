@@ -1,4 +1,4 @@
-package com.setia.myfootballmatch.detail
+package com.setia.myfootballmatch.eventdetail
 
 import android.database.sqlite.SQLiteConstraintException
 import android.support.v7.app.AppCompatActivity
@@ -8,13 +8,10 @@ import android.support.v4.content.ContextCompat
 import android.view.Menu
 import android.view.MenuItem
 import com.setia.myfootballmatch.R
-import com.setia.myfootballmatch.helper.FootballClient
 import com.setia.myfootballmatch.helper.database
 import com.setia.myfootballmatch.model.Event
 import com.setia.myfootballmatch.model.Favorite
 import com.squareup.picasso.Picasso
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_event_detail.*
 import org.jetbrains.anko.db.classParser
 import org.jetbrains.anko.db.insert

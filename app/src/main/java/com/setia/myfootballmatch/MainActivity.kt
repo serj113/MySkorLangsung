@@ -4,9 +4,9 @@ import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
-import com.setia.myfootballmatch.detail.EventDetailActivity
-import com.setia.myfootballmatch.fragment.MatchListFragment
-import com.setia.myfootballmatch.fragment.Schedule
+import com.setia.myfootballmatch.eventdetail.EventDetailActivity
+import com.setia.myfootballmatch.fragment.event.MatchListFragment
+import com.setia.myfootballmatch.fragment.event.Schedule
 import com.setia.myfootballmatch.model.Event
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.startActivity

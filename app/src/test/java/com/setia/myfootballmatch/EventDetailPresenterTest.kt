@@ -1,7 +1,7 @@
 package com.setia.myfootballmatch
 
-import com.setia.myfootballmatch.detail.EventDetailPresenter
-import com.setia.myfootballmatch.detail.EventDetailView
+import com.setia.myfootballmatch.eventdetail.EventDetailPresenter
+import com.setia.myfootballmatch.eventdetail.EventDetailView
 import com.setia.myfootballmatch.model.Event
 import org.junit.Before
 import org.junit.Test

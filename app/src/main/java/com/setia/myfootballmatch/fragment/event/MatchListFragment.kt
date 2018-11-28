@@ -1,4 +1,4 @@
-package com.setia.myfootballmatch.fragment
+package com.setia.myfootballmatch.fragment.event
 
 import android.content.Context
 import android.os.Bundle

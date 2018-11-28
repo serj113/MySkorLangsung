@@ -22,8 +22,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".detail.EventDetailActivity"
-            android:parentActivityName = ".MainActivity"></activity>
+            android:name=".eventdetail.EventDetailActivity"
+            android:parentActivityName=".MainActivity" />
+        <activity android:name=".teamdetail.TeamDetailActivity" />
+        <activity android:name=".playerdetail.PlayerDetailActivity"></activity>
     </application>
 
 </manifest>
