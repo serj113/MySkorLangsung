@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentPagerAdapter
 import com.setia.myfootballmatch.fragment.event.MatchListFragment
 import com.setia.myfootballmatch.fragment.event.Schedule
 import com.setia.myfootballmatch.fragment.eventfavorite.EventFavoriteFragment
+import com.setia.myfootballmatch.fragment.teamfavorite.TeamFavoriteFragment
 
 class FavoriteContainerPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
 
@@ -13,7 +14,7 @@ class FavoriteContainerPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(
         when (position) {
             0 -> return EventFavoriteFragment.newInstance()
             else -> {
-                return EventFavoriteFragment.newInstance()
+                return TeamFavoriteFragment.newInstance()
             }
         }
     }
