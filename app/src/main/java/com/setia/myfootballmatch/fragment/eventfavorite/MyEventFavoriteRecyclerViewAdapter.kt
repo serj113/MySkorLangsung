@@ -7,43 +7,37 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.setia.myfootballmatch.R
 
+import com.setia.myfootballmatch.model.Event
 
-import com.setia.myfootballmatch.fragment.eventfavorite.EventFavoriteFragment.OnListFragmentInteractionListener
-import com.setia.myfootballmatch.fragment.eventfavorite.dummy.DummyContent.DummyItem
+import kotlinx.android.synthetic.main.fragment_match_item.view.*
 
-import kotlinx.android.synthetic.main.fragment_event_favorite.view.*
-
-/**
- * [RecyclerView.Adapter] that can display a [DummyItem] and makes a call to the
- * specified [OnListFragmentInteractionListener].
- * TODO: Replace the implementation with code for your data type.
- */
 class MyEventFavoriteRecyclerViewAdapter(
-        private val mValues: List<DummyItem>,
-        private val mListener: OnListFragmentInteractionListener?)
+        private val mListener: EventFavoriteFragment.EventFavoriteInteractionListener?)
     : RecyclerView.Adapter<MyEventFavoriteRecyclerViewAdapter.ViewHolder>() {
 
+    var mValues: MutableList<Event> = ArrayList()
     private val mOnClickListener: View.OnClickListener
 
     init {
         mOnClickListener = View.OnClickListener { v ->
-            val item = v.tag as DummyItem
-            // Notify the active callbacks interface (the activity, if the fragment is attached to
-            // one) that an item has been selected.
-            mListener?.onListFragmentInteraction(item)
+            val item = v.tag as Event
+            mListener?.onTapEventFavorite(item)
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.fragment_event_favorite, parent, false)
+                .inflate(R.layout.fragment_match_item, parent, false)
         return ViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = mValues[position]
-        holder.mIdView.text = item.id
-        holder.mContentView.text = item.content
+        holder.team1.text = item.strHomeTeam
+        holder.team1Score.text = if (item.intHomeScore != null) item.intHomeScore.toString() else ""
+        holder.team2Score.text = if (item.intAwayScore != null) item.intAwayScore.toString() else ""
+        holder.team2.text = item.strAwayTeam
+        holder.date.text = item.dateEvent
 
         with(holder.mView) {
             tag = item
@@ -54,11 +48,10 @@ class MyEventFavoriteRecyclerViewAdapter(
     override fun getItemCount(): Int = mValues.size
 
     inner class ViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
-        val mIdView: TextView = mView.item_number
-        val mContentView: TextView = mView.content
-
-        override fun toString(): String {
-            return super.toString() + " '" + mContentView.text + "'"
-        }
+        val team1Score: TextView = mView.team_1_score_tv
+        val team1: TextView = mView.team_1_tv
+        val team2Score: TextView = mView.team_2_score_tv
+        val team2: TextView = mView.team_2_tv
+        val date: TextView = mView.date_tv
     }
 }

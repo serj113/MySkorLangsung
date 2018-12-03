@@ -4,46 +4,39 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import com.setia.myfootballmatch.R
 
+import com.setia.myfootballmatch.model.Team
+import com.squareup.picasso.Picasso
 
-import com.setia.myfootballmatch.fragment.team.TeamListFragment.OnListFragmentInteractionListener
-import com.setia.myfootballmatch.fragment.team.dummy.DummyContent.DummyItem
+import kotlinx.android.synthetic.main.fragment_team_item.view.*
 
-import kotlinx.android.synthetic.main.fragment_team.view.*
-
-/**
- * [RecyclerView.Adapter] that can display a [DummyItem] and makes a call to the
- * specified [OnListFragmentInteractionListener].
- * TODO: Replace the implementation with code for your data type.
- */
 class MyTeamRecyclerViewAdapter(
-        private val mValues: List<DummyItem>,
-        private val mListener: OnListFragmentInteractionListener?)
+        private val mListener: TeamListFragment.TeamInteractionListener?)
     : RecyclerView.Adapter<MyTeamRecyclerViewAdapter.ViewHolder>() {
 
+    var mValues: MutableList<Team> = ArrayList()
     private val mOnClickListener: View.OnClickListener
 
     init {
         mOnClickListener = View.OnClickListener { v ->
-            val item = v.tag as DummyItem
-            // Notify the active callbacks interface (the activity, if the fragment is attached to
-            // one) that an item has been selected.
-            mListener?.onListFragmentInteraction(item)
+            val item = v.tag as Team
+            mListener?.onTapTeam(item)
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.fragment_team, parent, false)
+                .inflate(R.layout.fragment_team_item, parent, false)
         return ViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = mValues[position]
-        holder.mIdView.text = item.id
-        holder.mContentView.text = item.content
+        holder.teamName.text = item.strTeam ?: ""
+        Picasso.get().load(item.strTeamLogo).into(holder.teamLogo)
 
         with(holder.mView) {
             tag = item
@@ -54,11 +47,7 @@ class MyTeamRecyclerViewAdapter(
     override fun getItemCount(): Int = mValues.size
 
     inner class ViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
-        val mIdView: TextView = mView.item_number
-        val mContentView: TextView = mView.content
-
-        override fun toString(): String {
-            return super.toString() + " '" + mContentView.text + "'"
-        }
+        val teamLogo: ImageView = mView.team_iv
+        val teamName: TextView = mView.team_name_tv
     }
 }

@@ -123,25 +123,6 @@ class MatchListFragment : Fragment() {
                             myAdapter.notifyDataSetChanged()
                         }
             }
-            Schedule.FAVORITE -> {
-                context?.database?.use {
-                    val result = select(Favorite.TABLE_EVENT)
-                    val favorite = result.parseList(classParser<Favorite>())
-                    fetchFavorite(favorite)
-                }
-            }
-        }
-    }
-
-    private fun fetchFavorite(favorites: List<Favorite>) {
-        for (favorite in favorites) {
-            FootballClient.sharedInstance.get().getEventDetail(favorite.eventId ?: "")
-                    .subscribeOn(Schedulers.newThread())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe {
-                        myAdapter.mValues.add(it.events?.first() ?: Event())
-                        myAdapter.notifyDataSetChanged()
-                    }
         }
     }
 

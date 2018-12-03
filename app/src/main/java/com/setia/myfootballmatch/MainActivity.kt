@@ -8,11 +8,16 @@ import com.setia.myfootballmatch.eventdetail.EventDetailActivity
 import com.setia.myfootballmatch.fragment.event.MatchListFragment
 import com.setia.myfootballmatch.fragment.event.Schedule
 import com.setia.myfootballmatch.fragment.eventcontainer.EventContainerFragment
+import com.setia.myfootballmatch.fragment.eventfavorite.EventFavoriteFragment
+import com.setia.myfootballmatch.fragment.favoritecontainer.FavoriteContainerFragment
+import com.setia.myfootballmatch.fragment.team.TeamListFragment
 import com.setia.myfootballmatch.model.Event
+import com.setia.myfootballmatch.model.Team
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.startActivity
 
-class MainActivity : AppCompatActivity(), MatchListFragment.OnListFragmentInteractionListener {
+class MainActivity : AppCompatActivity(), MatchListFragment.OnListFragmentInteractionListener,
+EventFavoriteFragment.EventFavoriteInteractionListener, TeamListFragment.TeamInteractionListener {
 
     var currentNav: Int = 0
 
@@ -27,14 +32,14 @@ class MainActivity : AppCompatActivity(), MatchListFragment.OnListFragmentIntera
             }
             R.id.navigation_teams -> {
                 if (currentNav != item.itemId) {
-                    loadFragment(MatchListFragment.newInstance(Schedule.NEXT))
+                    loadFragment(TeamListFragment.newInstance())
                     currentNav = item.itemId
                 }
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_favorite -> {
                 if (currentNav != item.itemId) {
-                    loadFragment(MatchListFragment.newInstance(Schedule.FAVORITE))
+                    loadFragment(FavoriteContainerFragment.newInstance())
                     currentNav = item.itemId
                 }
                 return@OnNavigationItemSelectedListener true
@@ -62,5 +67,15 @@ class MainActivity : AppCompatActivity(), MatchListFragment.OnListFragmentIntera
         if (item != null) {
             startActivity<EventDetailActivity>("event" to item)
         }
+    }
+
+    override fun onTapEventFavorite(item: Event?) {
+        if (item != null) {
+            startActivity<EventDetailActivity>("event" to item)
+        }
+    }
+
+    override fun onTapTeam(item: Team?) {
+
     }
 }

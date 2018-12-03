@@ -9,54 +9,69 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.Spinner
 import com.setia.myfootballmatch.R
+import com.setia.myfootballmatch.helper.FootballClient
+import com.setia.myfootballmatch.helper.LeagueArrayAdapter
+import com.setia.myfootballmatch.model.League
 
-import com.setia.myfootballmatch.fragment.team.dummy.DummyContent
-import com.setia.myfootballmatch.fragment.team.dummy.DummyContent.DummyItem
+import com.setia.myfootballmatch.model.Team
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import org.jetbrains.anko.find
 
-/**
- * A fragment representing a list of Items.
- * Activities containing this fragment MUST implement the
- * [TeamListFragment.OnListFragmentInteractionListener] interface.
- */
 class TeamListFragment : Fragment() {
+    private var listener: TeamInteractionListener? = null
 
-    // TODO: Customize parameters
-    private var columnCount = 1
+    private var leagues: MutableList<League> = mutableListOf()
 
-    private var listener: OnListFragmentInteractionListener? = null
+    private lateinit var spinner: Spinner
+
+    lateinit var myAdapter: MyTeamRecyclerViewAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        arguments?.let {
-            columnCount = it.getInt(ARG_COLUMN_COUNT)
-        }
+        FootballClient.sharedInstance.get().getAllLeague()
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    leagues = it.leagues?.toMutableList() ?: mutableListOf()
+                    updateSpinner()
+                }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_team_item_list, container, false)
+        val view = inflater.inflate(R.layout.fragment_team, container, false)
 
-        // Set the adapter
-        if (view is RecyclerView) {
-            with(view) {
-                layoutManager = when {
-                    columnCount <= 1 -> LinearLayoutManager(context)
-                    else -> GridLayoutManager(context, columnCount)
-                }
-                adapter = MyTeamRecyclerViewAdapter(DummyContent.ITEMS, listener)
+        spinner = view.find(R.id.team_sp)
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+
             }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                updateTeam(leagues[position].idLeague ?: "0")
+            }
+
         }
+
+        val recyleView = view.find<RecyclerView>(R.id.team_rv)
+        myAdapter = MyTeamRecyclerViewAdapter(listener)
+        recyleView.layoutManager = android.support.v7.widget.LinearLayoutManager(context)
+        recyleView.adapter = myAdapter
+
         return view
     }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        if (context is OnListFragmentInteractionListener) {
+        if (context is TeamInteractionListener) {
             listener = context
         } else {
-            throw RuntimeException(context.toString() + " must implement OnListFragmentInteractionListener")
+            throw RuntimeException(context.toString() + " must implement TeamInteractionListener")
         }
     }
 
@@ -65,34 +80,32 @@ class TeamListFragment : Fragment() {
         listener = null
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     *
-     *
-     * See the Android Training lesson
-     * [Communicating with Other Fragments](http://developer.android.com/training/basics/fragments/communicating.html)
-     * for more information.
-     */
-    interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
-        fun onListFragmentInteraction(item: DummyItem?)
+    interface TeamInteractionListener {
+        fun onTapTeam(item: Team?)
+    }
+
+
+    private fun updateSpinner() {
+        val spinnerAdapter = LeagueArrayAdapter(requireContext(),
+                android.R.layout.simple_spinner_dropdown_item,
+                values = leagues.toList()
+        )
+        spinner.adapter = spinnerAdapter
+    }
+
+    private fun updateTeam(eventId: String) {
+        FootballClient.sharedInstance.get().getAllTeam(eventId)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    myAdapter.mValues = it.teams?.toMutableList() ?: ArrayList()
+                    myAdapter.notifyDataSetChanged()
+                }
     }
 
     companion object {
-
-        // TODO: Customize parameter argument names
-        const val ARG_COLUMN_COUNT = "column-count"
-
-        // TODO: Customize parameter initialization
         @JvmStatic
-        fun newInstance(columnCount: Int) =
-                TeamListFragment().apply {
-                    arguments = Bundle().apply {
-                        putInt(ARG_COLUMN_COUNT, columnCount)
-                    }
-                }
+        fun newInstance() =
+                TeamListFragment()
     }
 }

@@ -10,27 +10,29 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.setia.myfootballmatch.R
+import com.setia.myfootballmatch.helper.FootballClient
+import com.setia.myfootballmatch.helper.database
 
-import com.setia.myfootballmatch.fragment.eventfavorite.dummy.DummyContent
-import com.setia.myfootballmatch.fragment.eventfavorite.dummy.DummyContent.DummyItem
+import com.setia.myfootballmatch.model.Event
+import com.setia.myfootballmatch.model.Favorite
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import org.jetbrains.anko.db.classParser
+import org.jetbrains.anko.db.select
 
-/**
- * A fragment representing a list of Items.
- * Activities containing this fragment MUST implement the
- * [EventFavoriteFragment.OnListFragmentInteractionListener] interface.
- */
 class EventFavoriteFragment : Fragment() {
 
-    // TODO: Customize parameters
-    private var columnCount = 1
+    private var listener: EventFavoriteInteractionListener? = null
 
-    private var listener: OnListFragmentInteractionListener? = null
+    lateinit  var myAdapter: MyEventFavoriteRecyclerViewAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        arguments?.let {
-            columnCount = it.getInt(ARG_COLUMN_COUNT)
+        context?.database?.use {
+            val result = select(Favorite.TABLE_EVENT)
+            val favorite = result.parseList(classParser<Favorite>())
+            fetchFavorite(favorite)
         }
     }
 
@@ -38,14 +40,13 @@ class EventFavoriteFragment : Fragment() {
                               savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_event_favorite_list, container, false)
 
+        myAdapter = MyEventFavoriteRecyclerViewAdapter(listener)
+
         // Set the adapter
         if (view is RecyclerView) {
             with(view) {
-                layoutManager = when {
-                    columnCount <= 1 -> LinearLayoutManager(context)
-                    else -> GridLayoutManager(context, columnCount)
-                }
-                adapter = MyEventFavoriteRecyclerViewAdapter(DummyContent.ITEMS, listener)
+                layoutManager = android.support.v7.widget.LinearLayoutManager(context)
+                adapter = myAdapter
             }
         }
         return view
@@ -53,7 +54,7 @@ class EventFavoriteFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        if (context is OnListFragmentInteractionListener) {
+        if (context is EventFavoriteInteractionListener) {
             listener = context
         } else {
             throw RuntimeException(context.toString() + " must implement OnListFragmentInteractionListener")
@@ -65,34 +66,24 @@ class EventFavoriteFragment : Fragment() {
         listener = null
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     *
-     *
-     * See the Android Training lesson
-     * [Communicating with Other Fragments](http://developer.android.com/training/basics/fragments/communicating.html)
-     * for more information.
-     */
-    interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
-        fun onListFragmentInteraction(item: DummyItem?)
+    interface EventFavoriteInteractionListener {
+        fun onTapEventFavorite(item: Event?)
     }
 
     companion object {
+        fun newInstance() =
+                EventFavoriteFragment()
+    }
 
-        // TODO: Customize parameter argument names
-        const val ARG_COLUMN_COUNT = "column-count"
-
-        // TODO: Customize parameter initialization
-        @JvmStatic
-        fun newInstance(columnCount: Int) =
-                EventFavoriteFragment().apply {
-                    arguments = Bundle().apply {
-                        putInt(ARG_COLUMN_COUNT, columnCount)
+    private fun fetchFavorite(favorites: List<Favorite>) {
+        for (favorite in favorites) {
+            FootballClient.sharedInstance.get().getEventDetail(favorite.eventId ?: "")
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe {
+                        myAdapter.mValues.add(it.events?.first() ?: Event())
+                        myAdapter.notifyDataSetChanged()
                     }
-                }
+        }
     }
 }

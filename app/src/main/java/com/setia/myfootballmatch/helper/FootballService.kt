@@ -22,6 +22,9 @@ interface FootballService {
     @GET("api/v1/json/1/lookupteam.php")
     fun getTeamDetail(@Query("id") teamId: String): Observable<TeamResponse>
 
+    @GET("api/v1/json/1/lookup_all_teams.php")
+    fun getAllTeam(@Query("id") league: String): Observable<TeamResponse>
+
     @GET("api/v1/json/1/search_all_teams.php")
     fun getListTeam(@Query("l") league: String): Observable<TeamResponse>
 
