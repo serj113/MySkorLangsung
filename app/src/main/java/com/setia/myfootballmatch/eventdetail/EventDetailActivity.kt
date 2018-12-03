@@ -28,7 +28,7 @@ class EventDetailActivity : AppCompatActivity(), EventDetailView {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        event = intent.extras.get("event") as Event
+        event = intent.extras?.get("event") as Event
 
         presenter = EventDetailPresenter(this)
 

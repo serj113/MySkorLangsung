@@ -1,4 +1,4 @@
-package com.setia.myfootballmatch.fragment.player
+package com.setia.myfootballmatch.fragment.eventfavorite
 
 import android.content.Context
 import android.os.Bundle
@@ -11,14 +11,20 @@ import android.view.View
 import android.view.ViewGroup
 import com.setia.myfootballmatch.R
 
-import com.setia.myfootballmatch.fragment.player.dummy.DummyContent
-import com.setia.myfootballmatch.fragment.player.dummy.DummyContent.DummyItem
+import com.setia.myfootballmatch.fragment.eventfavorite.dummy.DummyContent
+import com.setia.myfootballmatch.fragment.eventfavorite.dummy.DummyContent.DummyItem
 
-class PlayerFragment : Fragment() {
+/**
+ * A fragment representing a list of Items.
+ * Activities containing this fragment MUST implement the
+ * [EventFavoriteFragment.OnListFragmentInteractionListener] interface.
+ */
+class EventFavoriteFragment : Fragment() {
 
+    // TODO: Customize parameters
     private var columnCount = 1
 
-    private var listener: OnListPlayer? = null
+    private var listener: OnListFragmentInteractionListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,7 +36,7 @@ class PlayerFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_player_list, container, false)
+        val view = inflater.inflate(R.layout.fragment_event_favorite_list, container, false)
 
         // Set the adapter
         if (view is RecyclerView) {
@@ -39,7 +45,7 @@ class PlayerFragment : Fragment() {
                     columnCount <= 1 -> LinearLayoutManager(context)
                     else -> GridLayoutManager(context, columnCount)
                 }
-                adapter = MyplayerRecyclerViewAdapter(DummyContent.ITEMS, listener)
+                adapter = MyEventFavoriteRecyclerViewAdapter(DummyContent.ITEMS, listener)
             }
         }
         return view
@@ -47,10 +53,10 @@ class PlayerFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        if (context is OnListPlayer) {
+        if (context is OnListFragmentInteractionListener) {
             listener = context
         } else {
-            throw RuntimeException(context.toString() + " must implement OnListPlayer")
+            throw RuntimeException(context.toString() + " must implement OnListFragmentInteractionListener")
         }
     }
 
@@ -59,9 +65,20 @@ class PlayerFragment : Fragment() {
         listener = null
     }
 
-    interface OnListPlayer {
+    /**
+     * This interface must be implemented by activities that contain this
+     * fragment to allow an interaction in this fragment to be communicated
+     * to the activity and potentially other fragments contained in that
+     * activity.
+     *
+     *
+     * See the Android Training lesson
+     * [Communicating with Other Fragments](http://developer.android.com/training/basics/fragments/communicating.html)
+     * for more information.
+     */
+    interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        fun onTapPlayer(item: DummyItem?)
+        fun onListFragmentInteraction(item: DummyItem?)
     }
 
     companion object {
@@ -72,7 +89,7 @@ class PlayerFragment : Fragment() {
         // TODO: Customize parameter initialization
         @JvmStatic
         fun newInstance(columnCount: Int) =
-                PlayerFragment().apply {
+                EventFavoriteFragment().apply {
                     arguments = Bundle().apply {
                         putInt(ARG_COLUMN_COUNT, columnCount)
                     }

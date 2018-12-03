@@ -1,4 +1,4 @@
-package com.setia.myfootballmatch.fragment.player
+package com.setia.myfootballmatch.fragment.eventfavorite
 
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -8,15 +8,20 @@ import android.widget.TextView
 import com.setia.myfootballmatch.R
 
 
-import com.setia.myfootballmatch.fragment.player.PlayerFragment.OnListPlayer
-import com.setia.myfootballmatch.fragment.player.dummy.DummyContent.DummyItem
+import com.setia.myfootballmatch.fragment.eventfavorite.EventFavoriteFragment.OnListFragmentInteractionListener
+import com.setia.myfootballmatch.fragment.eventfavorite.dummy.DummyContent.DummyItem
 
-import kotlinx.android.synthetic.main.fragment_player.view.*
+import kotlinx.android.synthetic.main.fragment_event_favorite.view.*
 
-class MyplayerRecyclerViewAdapter(
+/**
+ * [RecyclerView.Adapter] that can display a [DummyItem] and makes a call to the
+ * specified [OnListFragmentInteractionListener].
+ * TODO: Replace the implementation with code for your data type.
+ */
+class MyEventFavoriteRecyclerViewAdapter(
         private val mValues: List<DummyItem>,
-        private val mListener: OnListPlayer?)
-    : RecyclerView.Adapter<MyplayerRecyclerViewAdapter.ViewHolder>() {
+        private val mListener: OnListFragmentInteractionListener?)
+    : RecyclerView.Adapter<MyEventFavoriteRecyclerViewAdapter.ViewHolder>() {
 
     private val mOnClickListener: View.OnClickListener
 
@@ -25,13 +30,13 @@ class MyplayerRecyclerViewAdapter(
             val item = v.tag as DummyItem
             // Notify the active callbacks interface (the activity, if the fragment is attached to
             // one) that an item has been selected.
-            mListener?.onTapPlayer(item)
+            mListener?.onListFragmentInteraction(item)
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.fragment_player, parent, false)
+                .inflate(R.layout.fragment_event_favorite, parent, false)
         return ViewHolder(view)
     }
 

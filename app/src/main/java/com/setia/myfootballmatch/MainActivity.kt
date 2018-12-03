@@ -7,24 +7,36 @@ import android.support.v7.app.AppCompatActivity
 import com.setia.myfootballmatch.eventdetail.EventDetailActivity
 import com.setia.myfootballmatch.fragment.event.MatchListFragment
 import com.setia.myfootballmatch.fragment.event.Schedule
+import com.setia.myfootballmatch.fragment.eventcontainer.EventContainerFragment
 import com.setia.myfootballmatch.model.Event
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.startActivity
 
 class MainActivity : AppCompatActivity(), MatchListFragment.OnListFragmentInteractionListener {
 
+    var currentNav: Int = 0
+
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
-            R.id.navigation_prev -> {
-                loadFragment(MatchListFragment.newInstance(Schedule.PAST))
+            R.id.navigation_matches -> {
+                if (currentNav != item.itemId) {
+                    loadFragment(EventContainerFragment.newInstance())
+                    currentNav = item.itemId
+                }
                 return@OnNavigationItemSelectedListener true
             }
-            R.id.navigation_next -> {
-                loadFragment(MatchListFragment.newInstance(Schedule.NEXT))
+            R.id.navigation_teams -> {
+                if (currentNav != item.itemId) {
+                    loadFragment(MatchListFragment.newInstance(Schedule.NEXT))
+                    currentNav = item.itemId
+                }
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_favorite -> {
-                loadFragment(MatchListFragment.newInstance(Schedule.FAVORITE))
+                if (currentNav != item.itemId) {
+                    loadFragment(MatchListFragment.newInstance(Schedule.FAVORITE))
+                    currentNav = item.itemId
+                }
                 return@OnNavigationItemSelectedListener true
             }
         }
@@ -34,8 +46,9 @@ class MainActivity : AppCompatActivity(), MatchListFragment.OnListFragmentIntera
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        loadFragment(MatchListFragment.newInstance(Schedule.PAST))
+        loadFragment(EventContainerFragment.newInstance())
 
+        currentNav = R.id.navigation_matches
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
     }
 

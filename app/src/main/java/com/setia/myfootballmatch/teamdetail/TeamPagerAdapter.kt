@@ -3,15 +3,17 @@ package com.setia.myfootballmatch.teamdetail
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
+import com.setia.myfootballmatch.fragment.overview.OverviewFragment
+import com.setia.myfootballmatch.fragment.player.PlayerFragment
+import com.setia.myfootballmatch.model.Team
 
-class TeamPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
+class TeamPagerAdapter(fm: FragmentManager,val team: Team) : FragmentPagerAdapter(fm) {
 
     override fun getItem(position: Int): Fragment {
         when (position) {
-            0 -> return MatchListFragment.newInstance(Schedule.PAST)
-            1 -> return MatchListFragment.newInstance(Schedule.NEXT)
+            0 -> return OverviewFragment.newInstance(team.strDescriptionEN ?: "")
             else -> {
-                return MatchListFragment.newInstance(Schedule.EMPTY)
+                return OverviewFragment.newInstance(team.strDescriptionEN ?: "")
             }
         }
     }
@@ -22,8 +24,8 @@ class TeamPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
 
     override fun getPageTitle(position: Int): CharSequence? {
         when (position) {
-            0 -> return "Last Match"
-            1 -> return "Next Match"
+            0 -> return "OVERVIEW"
+            1 -> return "PLAYERS"
             else -> {
                 return null
             }
