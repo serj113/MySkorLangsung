@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".teamdetail.TeamDetailActivity">
+    android:fitsSystemWindows="true">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/htab_appbar"
@@ -24,7 +23,7 @@
             app:titleEnabled="false">
 
             <ImageView
-                android:id="@+id/htab_header"
+                android:id="@+id/team_iv"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:fitsSystemWindows="true"
@@ -48,7 +47,7 @@
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
             <android.support.design.widget.TabLayout
-                android:id="@+id/htab_tabs"
+                android:id="@+id/team_detail_tabs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
@@ -61,7 +60,7 @@
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.view.ViewPager
-        android:id="@+id/htab_viewpager"
+        android:id="@+id/team_detail_vp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>

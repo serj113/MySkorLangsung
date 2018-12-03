@@ -13,6 +13,7 @@ import com.setia.myfootballmatch.fragment.favoritecontainer.FavoriteContainerFra
 import com.setia.myfootballmatch.fragment.team.TeamListFragment
 import com.setia.myfootballmatch.model.Event
 import com.setia.myfootballmatch.model.Team
+import com.setia.myfootballmatch.teamdetail.TeamDetailActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.startActivity
 
@@ -76,6 +77,8 @@ EventFavoriteFragment.EventFavoriteInteractionListener, TeamListFragment.TeamInt
     }
 
     override fun onTapTeam(item: Team?) {
-
+        if (item != null) {
+            startActivity<TeamDetailActivity>("team" to item)
+        }
     }
 }
