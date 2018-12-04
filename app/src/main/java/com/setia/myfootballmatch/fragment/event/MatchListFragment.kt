@@ -4,11 +4,10 @@ import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.RecyclerView
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.SearchView
 import android.widget.Spinner
 import com.setia.myfootballmatch.R
 import com.setia.myfootballmatch.helper.FootballClient
@@ -28,13 +27,15 @@ import org.jetbrains.anko.find
  * Activities containing this fragment MUST implement the
  * [MatchListFragment.OnListFragmentInteractionListener] interface.
  */
-class MatchListFragment : Fragment() {
+class MatchListFragment : Fragment(), SearchView.OnQueryTextListener, MenuItem.OnActionExpandListener {
 
     private var schedule = Schedule.FAVORITE
 
     private var listener: OnListFragmentInteractionListener? = null
 
     private var leagues: MutableList<League> = mutableListOf()
+
+    private var events: MutableList<Event> = mutableListOf()
 
     private lateinit var spinner: Spinner
 
@@ -81,6 +82,12 @@ class MatchListFragment : Fragment() {
         return view
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is OnListFragmentInteractionListener) {
@@ -110,7 +117,9 @@ class MatchListFragment : Fragment() {
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe {
-                            myAdapter.mValues = it.events?.toMutableList() ?: ArrayList()
+                            myAdapter.isHideCalendar = false
+                            events = it.events?.toMutableList() ?: ArrayList()
+                            myAdapter.mValues = events
                             myAdapter.notifyDataSetChanged()
                         }
             }
@@ -119,7 +128,9 @@ class MatchListFragment : Fragment() {
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe {
-                            myAdapter.mValues = it.events?.toMutableList() ?: ArrayList()
+                            myAdapter.isHideCalendar = true
+                            events = it.events?.toMutableList() ?: ArrayList()
+                            myAdapter.mValues = events
                             myAdapter.notifyDataSetChanged()
                         }
             }
@@ -128,6 +139,60 @@ class MatchListFragment : Fragment() {
 
     interface OnListFragmentInteractionListener {
         fun onListFragmentInteraction(item: Event?)
+        fun addToCalendar(item: Event?)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+        inflater?.inflate(R.menu.search_menu, menu)
+        val searchItem = menu?.findItem(R.id.action_search)
+        val searchView = searchItem?.actionView as SearchView
+        searchView.setOnQueryTextListener(this)
+        searchView.setQueryHint("Search")
+
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.add_to_favorite -> {
+                true
+            }
+
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onQueryTextSubmit(p0: String?): Boolean {
+        return true
+    }
+
+    override fun onQueryTextChange(p0: String?): Boolean {
+        if (p0 == null || p0.trim().isEmpty()) {
+            resetSearch()
+            return false
+        }
+
+        val filteredValues = events.filter {
+            it.strHomeTeam?.contains(p0, ignoreCase = true) ?: false
+            || it.strAwayTeam?.contains(p0, ignoreCase = true) ?: false
+        }
+        myAdapter.mValues = filteredValues.toMutableList()
+        myAdapter.notifyDataSetChanged()
+
+        return false
+    }
+
+    private fun resetSearch() {
+        myAdapter.mValues = events
+        myAdapter.notifyDataSetChanged()
+    }
+
+    override fun onMenuItemActionExpand(p0: MenuItem?): Boolean {
+        return true
+    }
+
+    override fun onMenuItemActionCollapse(p0: MenuItem?): Boolean {
+        return true
     }
 
     companion object {

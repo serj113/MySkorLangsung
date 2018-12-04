@@ -1,9 +1,6 @@
 package com.setia.myfootballmatch.helper
 
-import com.setia.myfootballmatch.model.EventResponse
-import com.setia.myfootballmatch.model.LeagueResponse
-import com.setia.myfootballmatch.model.PlayerResponse
-import com.setia.myfootballmatch.model.TeamResponse
+import com.setia.myfootballmatch.model.*
 import io.reactivex.Observable
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -33,5 +30,8 @@ interface FootballService {
 
     @GET("api/v1/json/1/lookupplayer.php")
     fun getTeamPlayers(@Query("id") teamId: String): Observable<PlayerResponse>
+
+    @GET("api/v1/json/1/lookup_all_players.php")
+    fun getAllTeamPlayer(@Query("id") teamId: String): Observable<PlayerResponse>
 
 }

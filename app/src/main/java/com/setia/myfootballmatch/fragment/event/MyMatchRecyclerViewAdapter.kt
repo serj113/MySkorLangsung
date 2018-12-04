@@ -1,9 +1,11 @@
 package com.setia.myfootballmatch.fragment.event
 
+import android.opengl.Visibility
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.TextView
 import com.setia.myfootballmatch.R
 
@@ -21,6 +23,7 @@ class MyMatchRecyclerViewAdapter(
         private val mListener: OnListFragmentInteractionListener?)
     : RecyclerView.Adapter<MyMatchRecyclerViewAdapter.ViewHolder>() {
 
+    var isHideCalendar: Boolean = false
     var mValues: MutableList<Event> = ArrayList()
     private val mOnClickListener: View.OnClickListener
 
@@ -44,6 +47,14 @@ class MyMatchRecyclerViewAdapter(
         holder.team2Score.text = if (item.intAwayScore != null) item.intAwayScore.toString() else ""
         holder.team2.text = item.strAwayTeam
         holder.date.text = item.dateEvent
+        if (isHideCalendar) {
+            holder.calendar.visibility = View.INVISIBLE
+        } else {
+            holder.calendar.visibility = View.VISIBLE
+            holder.calendar.setOnClickListener {
+                mListener?.addToCalendar(item)
+            }
+        }
 
         with(holder.mView) {
             tag = item
@@ -59,5 +70,6 @@ class MyMatchRecyclerViewAdapter(
         val team2Score: TextView = mView.team_2_score_tv
         val team2: TextView = mView.team_2_tv
         val date: TextView = mView.date_tv
+        val calendar: ImageButton = mView.calendar
     }
 }

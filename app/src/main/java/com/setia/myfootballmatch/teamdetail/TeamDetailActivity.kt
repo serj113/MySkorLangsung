@@ -9,17 +9,21 @@ import android.support.v4.content.ContextCompat
 import android.view.Menu
 import android.view.MenuItem
 import com.setia.myfootballmatch.R
+import com.setia.myfootballmatch.fragment.player.PlayerFragment
 import com.setia.myfootballmatch.helper.database
+import com.setia.myfootballmatch.model.Player
 import com.setia.myfootballmatch.model.Team
 import com.setia.myfootballmatch.model.TeamFavorite
+import com.setia.myfootballmatch.playerdetail.PlayerDetailActivity
 import com.squareup.picasso.Picasso
 import org.jetbrains.anko.db.insert
 import org.jetbrains.anko.db.select
 import org.jetbrains.anko.db.delete
 import kotlinx.android.synthetic.main.activity_team_detail.*
 import org.jetbrains.anko.db.classParser
+import org.jetbrains.anko.startActivity
 
-class TeamDetailActivity : AppCompatActivity(), TeamDetailView {
+class TeamDetailActivity : AppCompatActivity(), TeamDetailView, PlayerFragment.OnListPlayer {
 
     private lateinit var presenter: TeamDetailPresenter
 
@@ -41,6 +45,8 @@ class TeamDetailActivity : AppCompatActivity(), TeamDetailView {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         Picasso.get().load(team.strTeamLogo).into(team_iv)
+        team_name_tv.text = team.strTeam ?: ""
+        team_year_tv.text = team.intFormedYear ?: ""
 
         mPagerAdapter = TeamPagerAdapter(supportFragmentManager, team)
 
@@ -114,6 +120,12 @@ class TeamDetailActivity : AppCompatActivity(), TeamDetailView {
                             "id" to (team.idTeam ?: ""))
             val event = result.parseList(classParser<TeamFavorite>())
             if (!event.isEmpty()) isFavorite = true
+        }
+    }
+
+    override fun onTapPlayer(item: Player?) {
+        if (item != null) {
+            startActivity<PlayerDetailActivity>("player" to item)
         }
     }
 }

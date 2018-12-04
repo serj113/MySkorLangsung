@@ -22,13 +22,35 @@
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
             app:titleEnabled="false">
 
-            <ImageView
-                android:id="@+id/team_iv"
+            <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:fitsSystemWindows="true"
-                android:scaleType="centerCrop"
-                app:layout_collapseMode="parallax"/>
+                android:layout_height="match_parent">
+                <ImageView
+                    android:id="@+id/team_iv"
+                    android:layout_width="75dp"
+                    android:layout_height="75dp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_collapseMode="parallax"/>
+
+                <TextView
+                    android:id="@+id/team_name_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/team_iv"/>
+
+                <TextView
+                    android:id="@+id/team_year_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/team_name_tv" />
+            </android.support.constraint.ConstraintLayout>
 
             <View
                 android:layout_width="match_parent"

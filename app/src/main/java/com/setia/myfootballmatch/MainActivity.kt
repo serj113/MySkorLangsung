@@ -17,6 +17,11 @@ import com.setia.myfootballmatch.model.Team
 import com.setia.myfootballmatch.teamdetail.TeamDetailActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.startActivity
+import android.provider.CalendarContract
+import android.provider.CalendarContract.Events
+import android.content.Intent
+import java.util.*
+
 
 class MainActivity : AppCompatActivity(), MatchListFragment.OnListFragmentInteractionListener,
         EventFavoriteFragment.EventFavoriteInteractionListener, TeamListFragment.TeamInteractionListener,
@@ -28,21 +33,27 @@ class MainActivity : AppCompatActivity(), MatchListFragment.OnListFragmentIntera
         when (item.itemId) {
             R.id.navigation_matches -> {
                 if (currentNav != item.itemId) {
-                    loadFragment(EventContainerFragment.newInstance())
+                    val fragment = EventContainerFragment.newInstance()
+                    fragment.setHasOptionsMenu(true)
+                    loadFragment(fragment)
                     currentNav = item.itemId
                 }
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_teams -> {
                 if (currentNav != item.itemId) {
-                    loadFragment(TeamListFragment.newInstance())
+                    val fragment = TeamListFragment.newInstance()
+                    fragment.setHasOptionsMenu(true)
+                    loadFragment(fragment)
                     currentNav = item.itemId
                 }
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_favorite -> {
                 if (currentNav != item.itemId) {
-                    loadFragment(FavoriteContainerFragment.newInstance())
+                    val fragment = FavoriteContainerFragment.newInstance()
+                    fragment.setHasOptionsMenu(false)
+                    loadFragment(fragment)
                     currentNav = item.itemId
                 }
                 return@OnNavigationItemSelectedListener true
@@ -54,10 +65,9 @@ class MainActivity : AppCompatActivity(), MatchListFragment.OnListFragmentIntera
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        loadFragment(EventContainerFragment.newInstance())
 
-        currentNav = R.id.navigation_matches
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
+        navigation.selectedItemId = R.id.navigation_matches
     }
 
     private fun loadFragment(fragment: Fragment) {
@@ -87,6 +97,32 @@ class MainActivity : AppCompatActivity(), MatchListFragment.OnListFragmentIntera
     override fun onTapTeamFavorite(item: Team?) {
         if (item != null) {
             startActivity<TeamDetailActivity>("team" to item)
+        }
+    }
+
+    override fun addToCalendar(item: Event?) {
+        if (item != null) {
+            val calIntent = Intent(Intent.ACTION_INSERT)
+            calIntent.type = "vnd.android.cursor.item/event"
+            calIntent.putExtra(Events.TITLE, item.strEvent)
+            calIntent.putExtra(Events.DESCRIPTION, item.strEvent)
+
+            val dateEvent = item.dateEvent?.split("-") ?: listOf()
+            val timeEvent = item.strTime?.split(":") ?: listOf()
+
+            val beginTime = Calendar.getInstance()
+            beginTime.set(
+                    dateEvent[0].toInt(),
+                    dateEvent[1].toInt() - 1,
+                    dateEvent[2].toInt(),
+                    timeEvent[0].toInt(),
+                    timeEvent[1].toInt()
+            )
+
+            calIntent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME,
+                    beginTime.getTimeInMillis())
+
+            startActivity(calIntent)
         }
     }
 }

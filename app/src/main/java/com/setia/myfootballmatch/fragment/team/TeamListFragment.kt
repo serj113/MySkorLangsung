@@ -6,10 +6,9 @@ import android.support.v4.app.Fragment
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.AdapterView
+import android.widget.SearchView
 import android.widget.Spinner
 import com.setia.myfootballmatch.R
 import com.setia.myfootballmatch.helper.FootballClient
@@ -21,10 +20,11 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import org.jetbrains.anko.find
 
-class TeamListFragment : Fragment() {
+class TeamListFragment : Fragment(), SearchView.OnQueryTextListener, MenuItem.OnActionExpandListener {
     private var listener: TeamInteractionListener? = null
 
     private var leagues: MutableList<League> = mutableListOf()
+    private var teams: MutableList<Team> = mutableListOf()
 
     private lateinit var spinner: Spinner
 
@@ -32,6 +32,7 @@ class TeamListFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
 
         FootballClient.sharedInstance.get().getAllLeague()
                 .subscribeOn(Schedulers.newThread())
@@ -98,9 +99,58 @@ class TeamListFragment : Fragment() {
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    myAdapter.mValues = it.teams?.toMutableList() ?: ArrayList()
+                    teams = it.teams?.toMutableList() ?: ArrayList()
+                    myAdapter.mValues = teams
                     myAdapter.notifyDataSetChanged()
                 }
+    }override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+        inflater?.inflate(R.menu.search_menu, menu)
+        val searchItem = menu?.findItem(R.id.action_search)
+        val searchView = searchItem?.actionView as SearchView
+        searchView.setOnQueryTextListener(this)
+        searchView.setQueryHint("Search")
+
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.add_to_favorite -> {
+                true
+            }
+
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onQueryTextSubmit(p0: String?): Boolean {
+        return true
+    }
+
+    override fun onQueryTextChange(p0: String?): Boolean {
+        if (p0 == null || p0.trim().isEmpty()) {
+            resetSearch()
+            return false
+        }
+
+        val filteredValues = teams.filter { it.strTeam?.contains(p0, ignoreCase = true) ?: false }
+        myAdapter.mValues = filteredValues.toMutableList()
+        myAdapter.notifyDataSetChanged()
+
+        return false
+    }
+
+    private fun resetSearch() {
+        myAdapter.mValues = teams
+        myAdapter.notifyDataSetChanged()
+    }
+
+    override fun onMenuItemActionExpand(p0: MenuItem?): Boolean {
+        return true
+    }
+
+    override fun onMenuItemActionCollapse(p0: MenuItem?): Boolean {
+        return true
     }
 
     companion object {

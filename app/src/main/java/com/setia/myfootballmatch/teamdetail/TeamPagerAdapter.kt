@@ -13,7 +13,7 @@ class TeamPagerAdapter(fm: FragmentManager,val team: Team) : FragmentPagerAdapte
         when (position) {
             0 -> return OverviewFragment.newInstance(team.strDescriptionEN ?: "")
             else -> {
-                return OverviewFragment.newInstance(team.strDescriptionEN ?: "")
+                return PlayerFragment.newInstance(team.idTeam ?: "")
             }
         }
     }
