@@ -23,9 +23,7 @@ import kotlinx.android.synthetic.main.activity_team_detail.*
 import org.jetbrains.anko.db.classParser
 import org.jetbrains.anko.startActivity
 
-class TeamDetailActivity : AppCompatActivity(), TeamDetailView, PlayerFragment.OnListPlayer {
-
-    private lateinit var presenter: TeamDetailPresenter
+class TeamDetailActivity : AppCompatActivity(), PlayerFragment.OnListPlayer {
 
     private lateinit var mPagerAdapter: TeamPagerAdapter
 
@@ -36,8 +34,6 @@ class TeamDetailActivity : AppCompatActivity(), TeamDetailView, PlayerFragment.O
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         team = intent.extras?.get("team") as Team
-
-        presenter = TeamDetailPresenter(this)
 
         setContentView(R.layout.activity_team_detail)
 

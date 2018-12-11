@@ -20,6 +20,7 @@ import org.jetbrains.anko.startActivity
 import android.provider.CalendarContract
 import android.provider.CalendarContract.Events
 import android.content.Intent
+import com.setia.myfootballmatch.searchevent.SearchEventActivity
 import java.util.*
 
 
@@ -100,27 +101,19 @@ class MainActivity : AppCompatActivity(), MatchListFragment.OnListFragmentIntera
         }
     }
 
-    override fun addToCalendar(item: Event?) {
-        if (item != null) {
+    override fun openSearchActivity() {
+        startActivity<SearchEventActivity>()
+    }
+
+    override fun addToCalendar(item: Event?, date: Date?) {
+        if (item != null && date != null) {
             val calIntent = Intent(Intent.ACTION_INSERT)
             calIntent.type = "vnd.android.cursor.item/event"
             calIntent.putExtra(Events.TITLE, item.strEvent)
             calIntent.putExtra(Events.DESCRIPTION, item.strEvent)
 
-            val dateEvent = item.dateEvent?.split("-") ?: listOf()
-            val timeEvent = item.strTime?.split(":") ?: listOf()
-
-            val beginTime = Calendar.getInstance()
-            beginTime.set(
-                    dateEvent[0].toInt(),
-                    dateEvent[1].toInt() - 1,
-                    dateEvent[2].toInt(),
-                    timeEvent[0].toInt(),
-                    timeEvent[1].toInt()
-            )
-
             calIntent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME,
-                    beginTime.getTimeInMillis())
+                    date.time)
 
             startActivity(calIntent)
         }

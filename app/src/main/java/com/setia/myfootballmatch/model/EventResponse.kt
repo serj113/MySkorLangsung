@@ -6,5 +6,8 @@ import com.google.gson.annotations.SerializedName
 data class EventResponse(
         @SerializedName("events")
         @Expose
-        var events: List<Event>? = null
+        var events: List<Event>? = null,
+        @SerializedName("event")
+        @Expose
+        var searchedEvents: List<Event>? = null
 )

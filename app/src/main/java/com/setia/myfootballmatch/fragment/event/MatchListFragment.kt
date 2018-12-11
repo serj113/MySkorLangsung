@@ -2,6 +2,7 @@ package com.setia.myfootballmatch.fragment.event
 
 import android.content.Context
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v7.widget.RecyclerView
 import android.view.*
@@ -21,15 +22,16 @@ import io.reactivex.schedulers.Schedulers
 import org.jetbrains.anko.db.classParser
 import org.jetbrains.anko.db.select
 import org.jetbrains.anko.find
+import java.util.*
 
 /**
  * A fragment representing a list of Items.
  * Activities containing this fragment MUST implement the
  * [MatchListFragment.OnListFragmentInteractionListener] interface.
  */
-class MatchListFragment : Fragment(), SearchView.OnQueryTextListener, MenuItem.OnActionExpandListener {
+class MatchListFragment : Fragment() {
 
-    private var schedule = Schedule.FAVORITE
+    private var schedule = Schedule.NEXT
 
     private var listener: OnListFragmentInteractionListener? = null
 
@@ -38,6 +40,8 @@ class MatchListFragment : Fragment(), SearchView.OnQueryTextListener, MenuItem.O
     private var events: MutableList<Event> = mutableListOf()
 
     private lateinit var spinner: Spinner
+
+    private var mView: View? = null
 
     lateinit  var myAdapter: MyMatchRecyclerViewAdapter
 
@@ -51,33 +55,44 @@ class MatchListFragment : Fragment(), SearchView.OnQueryTextListener, MenuItem.O
         FootballClient.sharedInstance.get().getAllLeague()
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
+                .subscribe ({
                     leagues = it.leagues?.toMutableList() ?: mutableListOf()
-                    updateSpinner()
-                }
+                    val view = mView
+                    if (view != null) {
+                        updateSpinner()
+                    }
+                }, {
+                    val view = mView
+                    if (view != null) {
+                        Snackbar.make(view, "Gagal Mengambil Data", Snackbar.LENGTH_SHORT).show()
+                    }
+                })
 
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_match, container, false)
+        mView = inflater.inflate(R.layout.fragment_match, container, false)
 
-        spinner = view.find(R.id.match_sp)
-        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
-            override fun onNothingSelected(parent: AdapterView<*>?) {
+        val view = mView
+        if (view != null) {
+            spinner = view.find(R.id.match_sp)
+            spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+
+                }
+
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    updateEvent(leagues[position].idLeague ?: "0")
+                }
 
             }
 
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                updateEvent(leagues[position].idLeague ?: "0")
-            }
-
+            val recyleView = view.find<RecyclerView>(R.id.match_rv)
+            myAdapter = MyMatchRecyclerViewAdapter(listener)
+            recyleView.layoutManager = android.support.v7.widget.LinearLayoutManager(context)
+            recyleView.adapter = myAdapter
         }
-
-        val recyleView = view.find<RecyclerView>(R.id.match_rv)
-        myAdapter = MyMatchRecyclerViewAdapter(listener)
-        recyleView.layoutManager = android.support.v7.widget.LinearLayoutManager(context)
-        recyleView.adapter = myAdapter
 
         return view
     }
@@ -100,6 +115,7 @@ class MatchListFragment : Fragment(), SearchView.OnQueryTextListener, MenuItem.O
     override fun onDetach() {
         super.onDetach()
         listener = null
+        mView = null
     }
 
     private fun updateSpinner() {
@@ -116,83 +132,64 @@ class MatchListFragment : Fragment(), SearchView.OnQueryTextListener, MenuItem.O
                 FootballClient.sharedInstance.get().getNextSchedule(eventId)
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe {
-                            myAdapter.isHideCalendar = false
+                        .subscribe({
                             events = it.events?.toMutableList() ?: ArrayList()
-                            myAdapter.mValues = events
-                            myAdapter.notifyDataSetChanged()
-                        }
+                            val view = mView
+                            if (view != null) {
+                                myAdapter.isHideCalendar = false
+                                myAdapter.mValues = events
+                                myAdapter.notifyDataSetChanged()
+                            }
+                        }, {
+                            val view = mView
+                            if (view != null) {
+                                Snackbar.make(view, "Gagal Mengambil Data", Snackbar.LENGTH_SHORT).show()
+                            }
+                        })
             }
             Schedule.PAST -> {
                 FootballClient.sharedInstance.get().getPastSchedule(eventId)
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe {
-                            myAdapter.isHideCalendar = true
+                        .subscribe({
                             events = it.events?.toMutableList() ?: ArrayList()
-                            myAdapter.mValues = events
-                            myAdapter.notifyDataSetChanged()
-                        }
+                            val view = mView
+                            if (view != null) {
+                                myAdapter.isHideCalendar = true
+                                myAdapter.mValues = events
+                                myAdapter.notifyDataSetChanged()
+                            }
+                        }, {
+                            val view = mView
+                            if (view != null) {
+                                Snackbar.make(view, "Gagal Mengambil Data", Snackbar.LENGTH_SHORT).show()
+                            }
+                        })
             }
         }
     }
 
     interface OnListFragmentInteractionListener {
         fun onListFragmentInteraction(item: Event?)
-        fun addToCalendar(item: Event?)
+        fun addToCalendar(item: Event?, date: Date?)
+        fun openSearchActivity()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         inflater?.inflate(R.menu.search_menu, menu)
-        val searchItem = menu?.findItem(R.id.action_search)
-        val searchView = searchItem?.actionView as SearchView
-        searchView.setOnQueryTextListener(this)
-        searchView.setQueryHint("Search")
 
         super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.add_to_favorite -> {
+            R.id.action_search -> {
+                listener?.openSearchActivity()
                 true
             }
 
             else -> super.onOptionsItemSelected(item)
         }
-    }
-
-    override fun onQueryTextSubmit(p0: String?): Boolean {
-        return true
-    }
-
-    override fun onQueryTextChange(p0: String?): Boolean {
-        if (p0 == null || p0.trim().isEmpty()) {
-            resetSearch()
-            return false
-        }
-
-        val filteredValues = events.filter {
-            it.strHomeTeam?.contains(p0, ignoreCase = true) ?: false
-            || it.strAwayTeam?.contains(p0, ignoreCase = true) ?: false
-        }
-        myAdapter.mValues = filteredValues.toMutableList()
-        myAdapter.notifyDataSetChanged()
-
-        return false
-    }
-
-    private fun resetSearch() {
-        myAdapter.mValues = events
-        myAdapter.notifyDataSetChanged()
-    }
-
-    override fun onMenuItemActionExpand(p0: MenuItem?): Boolean {
-        return true
-    }
-
-    override fun onMenuItemActionCollapse(p0: MenuItem?): Boolean {
-        return true
     }
 
     companion object {
@@ -210,5 +207,5 @@ class MatchListFragment : Fragment(), SearchView.OnQueryTextListener, MenuItem.O
 }
 
 enum class Schedule {
-    PAST, NEXT, FAVORITE
+    PAST, NEXT
 }

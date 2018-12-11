@@ -24,14 +24,17 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".eventdetail.EventDetailActivity"
-            android:parentActivityName=".MainActivity" />
-        <activity android:name=".teamdetail.TeamDetailActivity"
+            android:name=".eventdetail.EventDetailActivity" />
+        <activity
+            android:name=".teamdetail.TeamDetailActivity"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
-        <activity android:name=".playerdetail.PlayerDetailActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".playerdetail.PlayerDetailActivity"
             android:parentActivityName=".teamdetail.TeamDetailActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".searchevent.SearchEventActivity">
+        </activity>
     </application>
 
 </manifest>

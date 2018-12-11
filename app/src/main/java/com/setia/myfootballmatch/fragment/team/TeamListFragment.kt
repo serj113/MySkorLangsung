@@ -2,6 +2,7 @@ package com.setia.myfootballmatch.fragment.team
 
 import android.content.Context
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
@@ -26,6 +27,8 @@ class TeamListFragment : Fragment(), SearchView.OnQueryTextListener, MenuItem.On
     private var leagues: MutableList<League> = mutableListOf()
     private var teams: MutableList<Team> = mutableListOf()
 
+    private var mView: View? = null
+
     private lateinit var spinner: Spinner
 
     lateinit var myAdapter: MyTeamRecyclerViewAdapter
@@ -37,32 +40,42 @@ class TeamListFragment : Fragment(), SearchView.OnQueryTextListener, MenuItem.On
         FootballClient.sharedInstance.get().getAllLeague()
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
+                .subscribe( {
                     leagues = it.leagues?.toMutableList() ?: mutableListOf()
-                    updateSpinner()
-                }
+                    mView?.let {
+                        updateSpinner()
+                    }
+                }, {
+                    val view = mView
+                    if (view != null) {
+                        Snackbar.make(view, "Gagal Mengambil Data", Snackbar.LENGTH_SHORT).show()
+                    }
+                })
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_team, container, false)
+        mView = inflater.inflate(R.layout.fragment_team, container, false)
 
-        spinner = view.find(R.id.team_sp)
-        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
-            override fun onNothingSelected(parent: AdapterView<*>?) {
+        val view = mView
+        if (view != null){
+            spinner = view.find(R.id.team_sp)
+            spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+
+                }
+
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    updateTeam(leagues[position].idLeague ?: "0")
+                }
 
             }
 
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                updateTeam(leagues[position].idLeague ?: "0")
-            }
-
+            val recyleView = view.find<RecyclerView>(R.id.team_rv)
+            myAdapter = MyTeamRecyclerViewAdapter(listener)
+            recyleView.layoutManager = android.support.v7.widget.LinearLayoutManager(context)
+            recyleView.adapter = myAdapter
         }
-
-        val recyleView = view.find<RecyclerView>(R.id.team_rv)
-        myAdapter = MyTeamRecyclerViewAdapter(listener)
-        recyleView.layoutManager = android.support.v7.widget.LinearLayoutManager(context)
-        recyleView.adapter = myAdapter
 
         return view
     }
@@ -79,6 +92,7 @@ class TeamListFragment : Fragment(), SearchView.OnQueryTextListener, MenuItem.On
     override fun onDetach() {
         super.onDetach()
         listener = null
+        mView = null
     }
 
     interface TeamInteractionListener {
@@ -98,17 +112,27 @@ class TeamListFragment : Fragment(), SearchView.OnQueryTextListener, MenuItem.On
         FootballClient.sharedInstance.get().getAllTeam(eventId)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
+                .subscribe( {
                     teams = it.teams?.toMutableList() ?: ArrayList()
-                    myAdapter.mValues = teams
-                    myAdapter.notifyDataSetChanged()
-                }
-    }override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+                    val view = mView
+                    if (view != null) {
+                        myAdapter.mValues = teams
+                        myAdapter.notifyDataSetChanged()
+                    }
+                }, {
+                    val view = mView
+                    if (view != null) {
+                        Snackbar.make(view, "Gagal Mengambil Data", Snackbar.LENGTH_SHORT).show()
+                    }
+                })
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         inflater?.inflate(R.menu.search_menu, menu)
         val searchItem = menu?.findItem(R.id.action_search)
         val searchView = searchItem?.actionView as SearchView
         searchView.setOnQueryTextListener(this)
-        searchView.setQueryHint("Search")
+        searchView.queryHint = "Search"
 
         super.onCreateOptionsMenu(menu, inflater)
     }
@@ -133,9 +157,20 @@ class TeamListFragment : Fragment(), SearchView.OnQueryTextListener, MenuItem.On
             return false
         }
 
-        val filteredValues = teams.filter { it.strTeam?.contains(p0, ignoreCase = true) ?: false }
-        myAdapter.mValues = filteredValues.toMutableList()
-        myAdapter.notifyDataSetChanged()
+        FootballClient.sharedInstance.get().searchTeams(p0)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe( {
+                    var teams = it.teams?.toMutableList() ?: mutableListOf()
+                    myAdapter.mValues = teams.filter { it.strSport == "Soccer" }.toMutableList()
+                    myAdapter.notifyDataSetChanged()
+                }, {
+                    val view = mView
+                    if (view != null) {
+                        Snackbar.make(view, "Gagal Mengambil Data", Snackbar.LENGTH_SHORT).show()
+                    }
+                })
+
 
         return false
     }

@@ -2,6 +2,7 @@ package com.setia.myfootballmatch.fragment.eventfavorite
 
 import android.content.Context
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
@@ -26,30 +27,34 @@ class EventFavoriteFragment : Fragment() {
 
     lateinit  var myAdapter: MyEventFavoriteRecyclerViewAdapter
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        context?.database?.use {
-            val result = select(Favorite.TABLE_EVENT)
-            val favorite = result.parseList(classParser<Favorite>())
-            fetchFavorite(favorite)
-        }
-    }
+    private var mView: View? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_event_favorite_list, container, false)
+        mView = inflater.inflate(R.layout.fragment_event_favorite_list, container, false)
 
         myAdapter = MyEventFavoriteRecyclerViewAdapter(listener)
 
-        // Set the adapter
-        if (view is RecyclerView) {
+        val view = mView
+        if (view is RecyclerView && view != null) {
             with(view) {
                 layoutManager = android.support.v7.widget.LinearLayoutManager(context)
                 adapter = myAdapter
             }
         }
+
         return view
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        context?.database?.use {
+            val result = select(Favorite.TABLE_EVENT)
+            val favorite = result.parseList(classParser<Favorite>())
+            myAdapter.mValues.clear()
+            fetchFavorite(favorite)
+        }
     }
 
     override fun onAttach(context: Context) {
@@ -64,6 +69,7 @@ class EventFavoriteFragment : Fragment() {
     override fun onDetach() {
         super.onDetach()
         listener = null
+        mView = null
     }
 
     interface EventFavoriteInteractionListener {
@@ -80,10 +86,18 @@ class EventFavoriteFragment : Fragment() {
             FootballClient.sharedInstance.get().getEventDetail(favorite.eventId ?: "")
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe {
+                    .subscribe({
                         myAdapter.mValues.add(it.events?.first() ?: Event())
-                        myAdapter.notifyDataSetChanged()
-                    }
+                        val view = mView
+                        if (view != null) {
+                            myAdapter.notifyDataSetChanged()
+                        }
+                    }, {
+                        val view = mView
+                        if (view != null) {
+                            Snackbar.make(view, "Gagal Mengambil Data", Snackbar.LENGTH_SHORT).show()
+                        }
+                    })
         }
     }
 }

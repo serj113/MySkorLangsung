@@ -6,8 +6,10 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 
 import com.setia.myfootballmatch.R
+import org.jetbrains.anko.find
 
 private const val ARG_OVERVIEW = "overview"
 
@@ -23,8 +25,11 @@ class OverviewFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_overview, container, false)
+        val view = inflater.inflate(R.layout.fragment_overview, container, false)
+
+        view.find<TextView>(R.id.overview_tv).text = overview
+
+        return view
     }
 
     companion object {

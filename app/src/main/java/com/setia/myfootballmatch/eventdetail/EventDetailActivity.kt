@@ -17,6 +17,8 @@ import org.jetbrains.anko.db.classParser
 import org.jetbrains.anko.db.insert
 import org.jetbrains.anko.db.select
 import org.jetbrains.anko.db.delete
+import java.text.SimpleDateFormat
+import java.util.*
 
 class EventDetailActivity : AppCompatActivity(), EventDetailView {
 
@@ -45,7 +47,9 @@ class EventDetailActivity : AppCompatActivity(), EventDetailView {
     }
 
     override fun updateView() {
-        date_tv.text = event.dateEvent ?: ""
+        val date = convertDate(event.dateEvent ?: "", event.strTime ?: "")
+        date_tv.text = SimpleDateFormat("EEE, dd MMM yyyy").format(date)
+        time_tv.text = SimpleDateFormat("hh:mm a").format(date)
 
         team_1_score_tv.text = "${event.intHomeScore ?: 0}"
         team_1_name_tv.text = event.strHomeTeam ?: ""
@@ -122,7 +126,7 @@ class EventDetailActivity : AppCompatActivity(), EventDetailView {
                 delete(Favorite.TABLE_EVENT, "(EVENT_ID = {id})",
                         "id" to (event.idEvent ?: ""))
             }
-            Snackbar.make(scrollView, "Removed to favorite", Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(scrollView, "Removed from favorite", Snackbar.LENGTH_SHORT).show()
         } catch (e: SQLiteConstraintException){
             Snackbar.make(scrollView, e.localizedMessage, Snackbar.LENGTH_SHORT).show()
         }
@@ -143,6 +147,13 @@ class EventDetailActivity : AppCompatActivity(), EventDetailView {
             val event = result.parseList(classParser<Favorite>())
             if (!event.isEmpty()) isFavorite = true
         }
+    }
+
+    private fun convertDate(date: String, time: String): Date {
+        val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+        formatter.timeZone = TimeZone.getTimeZone("UTC")
+        val covertedDate = "$date $time"
+        return formatter.parse(covertedDate)
     }
 
 }

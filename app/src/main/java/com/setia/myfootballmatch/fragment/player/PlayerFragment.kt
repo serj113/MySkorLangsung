@@ -2,6 +2,7 @@ package com.setia.myfootballmatch.fragment.player
 
 import android.content.Context
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -20,6 +21,7 @@ class PlayerFragment : Fragment() {
 
     private var teamId: String = ""
     lateinit var myAdapter: MyplayerRecyclerViewAdapter
+    private var mView: View? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,19 +33,27 @@ class PlayerFragment : Fragment() {
         FootballClient.sharedInstance.get().getAllTeamPlayer(teamId)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
+                .subscribe( {
                     myAdapter.mValues = it.players?.toMutableList() ?: ArrayList()
-                    myAdapter.notifyDataSetChanged()
-                }
+                    mView?.let {
+                        myAdapter.notifyDataSetChanged()
+                    }
+                }, {
+                    val view = mView
+                    if (view != null) {
+                        Snackbar.make(view, "Gagal Mengambil Data", Snackbar.LENGTH_SHORT).show()
+                    }
+                })
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_player_list, container, false)
+        mView = inflater.inflate(R.layout.fragment_player_list, container, false)
 
         myAdapter = MyplayerRecyclerViewAdapter(listener)
 
-        if (view is RecyclerView) {
+        val view = mView
+        if (view is RecyclerView && view != null) {
             with(view) {
                 layoutManager = android.support.v7.widget.LinearLayoutManager(context)
                 adapter = myAdapter
@@ -64,6 +74,7 @@ class PlayerFragment : Fragment() {
     override fun onDetach() {
         super.onDetach()
         listener = null
+        mView = null
     }
 
     interface OnListPlayer {

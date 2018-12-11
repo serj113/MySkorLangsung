@@ -2,6 +2,7 @@ package com.setia.myfootballmatch.fragment.teamfavorite
 
 import android.content.Context
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -23,24 +24,16 @@ class TeamFavoriteFragment : Fragment() {
 
     lateinit var myAdapter: MyTeamFavoriteRecyclerViewAdapter
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        context?.database?.use {
-            val result = select(TeamFavorite.TABLE_TEAM)
-            val favorite = result.parseList(classParser<TeamFavorite>())
-            fetchFavorite(favorite)
-        }
-    }
+    private var mView: View? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_team_favorite_list, container, false)
+        mView = inflater.inflate(R.layout.fragment_team_favorite_list, container, false)
 
         myAdapter = MyTeamFavoriteRecyclerViewAdapter(listener)
 
-        // Set the adapter
-        if (view is RecyclerView) {
+        val view = mView
+        if (view is RecyclerView && view != null) {
             with(view) {
                 layoutManager = android.support.v7.widget.LinearLayoutManager(context)
                 adapter = myAdapter
@@ -48,6 +41,17 @@ class TeamFavoriteFragment : Fragment() {
         }
 
         return view
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        context?.database?.use {
+            val result = select(TeamFavorite.TABLE_TEAM)
+            val favorite = result.parseList(classParser<TeamFavorite>())
+            myAdapter.mValues.clear()
+            fetchFavorite(favorite)
+        }
     }
 
     override fun onAttach(context: Context) {
@@ -79,10 +83,18 @@ class TeamFavoriteFragment : Fragment() {
             FootballClient.sharedInstance.get().getTeamDetail(favorite.teamId ?: "")
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe {
+                    .subscribe( {
                         myAdapter.mValues.add(it.teams?.first() ?: Team())
-                        myAdapter.notifyDataSetChanged()
-                    }
+                        val view = mView
+                        if (view != null) {
+                            myAdapter.notifyDataSetChanged()
+                        }
+                    }, {
+                        val view = mView
+                        if (view != null) {
+                            Snackbar.make(view, "Gagal Mengambil Data", Snackbar.LENGTH_SHORT).show()
+                        }
+                    })
         }
     }
 }
