@@ -52,6 +52,10 @@ class EventFavoriteFragment : Fragment() {
         context?.database?.use {
             val result = select(Favorite.TABLE_EVENT)
             val favorite = result.parseList(classParser<Favorite>())
+            val view = mView
+            if (view != null && favorite.isEmpty()) {
+                Snackbar.make(view, "Data Kosong", Snackbar.LENGTH_SHORT).show()
+            }
             myAdapter.mValues.clear()
             fetchFavorite(favorite)
         }

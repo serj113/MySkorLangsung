@@ -59,6 +59,9 @@ class MatchListFragment : Fragment() {
                     leagues = it.leagues?.toMutableList() ?: mutableListOf()
                     val view = mView
                     if (view != null) {
+                        if (leagues.isEmpty()) {
+                            Snackbar.make(view, "Data Kosong", Snackbar.LENGTH_SHORT).show()
+                        }
                         updateSpinner()
                     }
                 }, {
@@ -136,6 +139,9 @@ class MatchListFragment : Fragment() {
                             events = it.events?.toMutableList() ?: ArrayList()
                             val view = mView
                             if (view != null) {
+                                if (events.isEmpty()) {
+                                    Snackbar.make(view, "Data Kosong", Snackbar.LENGTH_SHORT).show()
+                                }
                                 myAdapter.isHideCalendar = false
                                 myAdapter.mValues = events
                                 myAdapter.notifyDataSetChanged()
@@ -155,6 +161,9 @@ class MatchListFragment : Fragment() {
                             events = it.events?.toMutableList() ?: ArrayList()
                             val view = mView
                             if (view != null) {
+                                if (events.isEmpty()) {
+                                    Snackbar.make(view, "Data Kosong", Snackbar.LENGTH_SHORT).show()
+                                }
                                 myAdapter.isHideCalendar = true
                                 myAdapter.mValues = events
                                 myAdapter.notifyDataSetChanged()
@@ -176,7 +185,7 @@ class MatchListFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        inflater?.inflate(R.menu.search_menu, menu)
+        inflater?.inflate(R.menu.lup_menu, menu)
 
         super.onCreateOptionsMenu(menu, inflater)
     }

@@ -43,6 +43,9 @@ class TeamListFragment : Fragment(), SearchView.OnQueryTextListener, MenuItem.On
                 .subscribe( {
                     leagues = it.leagues?.toMutableList() ?: mutableListOf()
                     mView?.let {
+                        if (leagues.isEmpty()) {
+                            Snackbar.make(it, "Data Kosong", Snackbar.LENGTH_SHORT).show()
+                        }
                         updateSpinner()
                     }
                 }, {
@@ -116,6 +119,9 @@ class TeamListFragment : Fragment(), SearchView.OnQueryTextListener, MenuItem.On
                     teams = it.teams?.toMutableList() ?: ArrayList()
                     val view = mView
                     if (view != null) {
+                        if (teams.isEmpty()) {
+                            Snackbar.make(view, "Data Kosong", Snackbar.LENGTH_SHORT).show()
+                        }
                         myAdapter.mValues = teams
                         myAdapter.notifyDataSetChanged()
                     }
@@ -163,6 +169,10 @@ class TeamListFragment : Fragment(), SearchView.OnQueryTextListener, MenuItem.On
                 .subscribe( {
                     var teams = it.teams?.toMutableList() ?: mutableListOf()
                     myAdapter.mValues = teams.filter { it.strSport == "Soccer" }.toMutableList()
+                    val view = mView
+                    if (view != null && myAdapter.mValues.isEmpty()) {
+                        Snackbar.make(view, "Data Kosong", Snackbar.LENGTH_SHORT).show()
+                    }
                     myAdapter.notifyDataSetChanged()
                 }, {
                     val view = mView

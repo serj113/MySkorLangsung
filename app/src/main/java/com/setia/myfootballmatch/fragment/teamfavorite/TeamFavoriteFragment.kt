@@ -49,6 +49,10 @@ class TeamFavoriteFragment : Fragment() {
         context?.database?.use {
             val result = select(TeamFavorite.TABLE_TEAM)
             val favorite = result.parseList(classParser<TeamFavorite>())
+            val view = mView
+            if (view != null && favorite.isEmpty()) {
+                Snackbar.make(view, "Data Kosong", Snackbar.LENGTH_SHORT).show()
+            }
             myAdapter.mValues.clear()
             fetchFavorite(favorite)
         }
